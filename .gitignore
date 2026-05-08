@@ -1,0 +1,15 @@
+node_modules/
+dist/
+build/
+coverage/
+
+npm-deug.log*
+yarn-debug.log*
+yarn-error.log*
+
+*.log
+
+uploads/
+
+.vscode/
+.idea/
