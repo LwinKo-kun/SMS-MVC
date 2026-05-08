@@ -1,0 +1,283 @@
+/* ========== ROOT (LIGHT THEME - GOLDEN EMBER) ========== */
+:root {
+  --bg: #fff6e5;
+  --text: #2b1b10;
+  --primary: #ff8c00;
+  --secondary: #ffd08a;
+  --card: #ffffff;
+  --accent: #ffb347;
+  --shadow: rgba(0,0,0,0.1);
+}
+
+/* ========== DARK THEME ========== */
+body.dark {
+  --bg: #1a120b;
+  --text: #f5e6d3;
+  --primary: #ff9f1c;
+  --secondary: #3a2a1f;
+  --card: #24180f;
+  --accent: #ffb347;
+  --shadow: rgba(0,0,0,0.4);
+}
+
+/* ========== GLOBAL ========== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  transition: 0.3s ease;
+}
+
+/* ========== NAVBAR ========== */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: var(--card);
+  box-shadow: 0 2px 10px var(--shadow);
+  position: sticky;
+  top: 0;
+}
+
+.logo {
+  font-weight: bold;
+  color: var(--primary);
+}
+
+.nav-links {
+  display: flex;
+  gap: 15px;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.nav-links a:hover {
+  color: var(--primary);
+}
+
+#toggleTheme {
+  background: var(--primary);
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* ========== HERO ========== */
+.hero {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.hero h1 {
+  font-size: 2.2rem;
+  color: var(--primary);
+}
+
+.hero p {
+  margin-top: 10px;
+  opacity: 0.85;
+}
+
+.buttons {
+  margin-top: 20px;
+}
+
+.btn {
+  padding: 10px 15px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.primary {
+  background: var(--primary);
+  color: white;
+}
+
+.secondary {
+  background: var(--secondary);
+  color: var(--text);
+}
+
+/* ========== FEATURES ========== */
+.features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  padding: 20px;
+}
+
+.card {
+  background: var(--card);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px var(--shadow);
+  text-align: center;
+}
+
+/* ========== FOOTER ========== */
+footer {
+  text-align: center;
+  padding: 15px;
+  margin-top: 20px;
+  opacity: 0.7;
+}
+
+/* ========== RESPONSIVE (IMPORTANT FIX) ========== */
+@media (max-width: 900px) {
+  .features {
+    grid-template-columns: 1fr;
+  }
+
+  .nav-links {
+    display: none; /* mobile clean UI */
+  }
+}
+
+@media (max-width: 600px) {
+  .hero h1 {
+    font-size: 1.6rem;
+  }
+}
+
+/* =========================
+   LOGIN PAGE - GOLDEN EMBER
+========================= */
+
+.login-page {
+  background: linear-gradient(135deg, #ff8c00, #1a120b);
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* container */
+.login-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* card */
+.login-card {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 30px;
+  width: 320px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  backdrop-filter: blur(10px);
+}
+
+/* header */
+.login-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.login-header h1 {
+  color: #ff8c00;
+  font-size: 22px;
+}
+
+.login-header p {
+  font-size: 13px;
+  color: #555;
+}
+
+/* input group */
+.input-group {
+  margin-bottom: 15px;
+}
+
+.input-group label {
+  font-size: 13px;
+  display: block;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  outline: none;
+  transition: 0.3s;
+}
+
+.input-group input:focus {
+  border-color: #ff8c00;
+  box-shadow: 0 0 5px rgba(255,140,0,0.4);
+}
+
+/* options */
+.options {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-bottom: 15px;
+  color: #555;
+}
+
+/* button */
+.login-btn {
+  width: 100%;
+  padding: 10px;
+  background: #ff8c00;
+  border: none;
+  color: white;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+  font-weight: bold;
+}
+
+.login-btn:hover {
+  background: #e67600;
+  transform: scale(1.03);
+}
+
+/* message */
+#msg {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 13px;
+  color: red;
+}
+
+/* =========================
+   DARK MODE SUPPORT
+========================= */
+
+body.dark .login-card {
+  background: #24180f;
+  color: #f5e6d3;
+}
+
+body.dark .input-group label {
+  color: #f5e6d3;
+}
+
+body.dark .input-group input {
+  background: #1a120b;
+  color: white;
+  border: 1px solid #444;
+}
+
+body.dark .login-header p {
+  color: #ccc;
+}
