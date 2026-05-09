@@ -1,13 +1,8 @@
 <?php
-
 header("Access-Control-Allow-Origin: http://localhost:3000");
-
 header("Access-Control-Allow-Credentials: true");
-
 header("Access-Control-Allow-Methods: GET, OPTIONS");
-
 header("Access-Control-Allow-Headers: Content-Type");
-
 header("Content-Type: application/json");
 
 if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
@@ -15,23 +10,14 @@ if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
     exit;
 }
 
-session_start();
+require_once __DIR__ . "/../config/Database.php";
+require_once __DIR__ . "/../models/Report.php";
 
-$response = [
-    "loggedIn" => false
-];
+$database = new Database();
+$db = $database->connect();
 
-if (
-    isset($_SESSION['loggedIn']) &&
-    $_SESSION['loggedIn'] === true
-) {
+$reportModel = new Report($db);
+$stats = $reportModel->getSummaryStats();
 
-    $response = [
-        "loggedIn" => true,
-        "user" => $_SESSION['user']
-    ];
-}
-
-echo json_encode($response);
-
+echo json_encode($stats);
 ?>
