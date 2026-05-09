@@ -1,189 +1,98 @@
 # 🔥 Student Management System (MVC + REST API)
 
-A full-stack **Student Management System** built using:
-- PHP (MVC Architecture)
-- MySQL Database
-- JavaScript (Fetch API)
-- HTML/CSS Frontend
+[![PHP Version](https://img.shields.io/badge/php-%5E7.4%20%7C%208.x-777bb4.svg)](https://www.php.net/)
+[![MySQL](https://img.shields.io/badge/mysql-%2300f.svg?style=flat&logo=mysql&logoColor=white)](https://www.mysql.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-The system manages students, courses, attendance, grades, enrollments, and user authentication.
+A robust, full-stack Student Management System built using a custom **MVC (Model-View-Controller)** architecture. This project features a decoupled frontend that communicates with a PHP-based REST API using the JavaScript Fetch API.
 
 ---
 
-# 🚀 Features
+## 🗺️ System Architecture & Flow
 
-## 👤 Authentication
-- Admin / Teacher login system
-- Session-based authentication
-- Secure password storage (MD5 used in current version)
+This diagram illustrates how the system processes a request, from the user interaction to the database response.
 
-## 🎓 Student Management
-- Add / View / Update / Delete students
-- Student profile management
+```mermaid
+graph TD
+    subgraph Frontend
+        UI[HTML/CSS/JS]
+        Fetch[Fetch API / AJAX]
+    end
 
-## 📚 Course Management
-- Create and manage courses
-- Course codes and credits support
+    subgraph Backend_MVC
+        Router[API Endpoint .php]
+        Controller[Controller Class]
+        Model[Model / SQL Logic]
+    end
 
-## 📝 Enrollment System
-- Assign students to courses
-- Track enrollment dates
+    DB[(MySQL Database)]
 
-## 📊 Grades System
-- Store student grades per course
-- Simple grade tracking
+    UI -->|User Interaction| Fetch
+    Fetch -->|JSON Request| Router
+    Router -->|Instantiates| Controller
+    Controller -->|Calls Methods| Model
+    Model -->|SQL Queries| DB
+    DB -->|Result Set| Model
+    Model -->|Returns Objects/Arrays| Controller
+    Controller -->|Encodes JSON| Fetch
+    Fetch -->|Updates DOM| UI
 
-## 📅 Attendance System
-- Mark attendance (present / absent / late)
-- Track per student per course
+erDiagram
+    USERS {
+        int user_id PK
+        string username
+        string password
+        string role
+    }
+    STUDENTS {
+        int student_id PK
+        string full_name
+        string email
+        string phone
+        string gender
+        date dob
+    }
+    COURSES {
+        int course_id PK
+        string course_name
+        string course_code
+        int credits
+    }
+    ENROLLMENTS {
+        int enrollment_id PK
+        int student_id FK
+        int course_id FK
+        date enroll_date
+    }
+    GRADES {
+        int grade_id PK
+        int student_id FK
+        int course_id FK
+        string grade
+    }
+    ATTENDANCE {
+        int attendance_id PK
+        int student_id FK
+        int course_id FK
+        date date
+        string status
+    }
 
----
+    STUDENTS ||--o{ ENROLLMENTS : "registers"
+    COURSES ||--o{ ENROLLMENTS : "includes"
+    STUDENTS ||--o{ GRADES : "receives"
+    COURSES ||--o{ GRADES : "evaluates"
+    STUDENTS ||--o{ ATTENDANCE : "marks"
+    COURSES ||--o{ ATTENDANCE : "tracks"
 
-# 🧱 Tech Stack
-
-- Frontend: HTML, CSS, JavaScript
-- Backend: PHP (MVC pattern)
-- Database: MySQL (MariaDB via XAMPP)
-- API: REST-style PHP endpoints
-- Architecture: MVC (Model - View - Controller)
-
----
-
-# 🗄️ Database Structure
-
-## 📌 Tables Overview
-
-### 👤 users
-Stores login accounts.
-
-- user_id (PK)
-- username
-- password (MD5 hashed)
-- role (admin / teacher)
-- created_at
-
----
-
-### 🎓 students
-Stores student information.
-
-- student_id (PK)
-- full_name
-- email
-- phone
-- gender
-- date_of_birth
-- address
-- created_at
-
----
-
-### 📚 courses
-Stores course data.
-
-- course_id (PK)
-- course_name
-- course_code (unique)
-- credits
-- description
-
----
-
-### 📝 enrollments
-Links students with courses.
-
-- enrollment_id (PK)
-- student_id (FK)
-- course_id (FK)
-- enroll_date
-
----
-
-### 📊 grades
-Stores student grades.
-
-- grade_id (PK)
-- student_id (FK)
-- course_id (FK)
-- grade
-
----
-
-### 📅 attendance
-Tracks student attendance.
-
-- attendance_id (PK)
-- student_id (FK)
-- course_id (FK)
-- date
-- status (present / absent / late)
-
----
-
-# ⚙️ System Architecture
-- Frontend (HTML + JS)
-- ↓
-- REST API (PHP)
-- ↓
-- Controller (MVC)
-- ↓
-- Model (Database Queries)
-- ↓
-- MySQL Database
-
-
----
-
-# 🔐 Login System
-
-- Session-based authentication using PHP
-- User roles:
-  - Admin
-  - Teacher
-
----
-
-# 📡 API Structure (Example)
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| /api/auth.php | POST | Login user |
-| /api/session.php | GET | Check session |
-| /api/students.php | GET/POST | Manage students |
-
----
-
-# 🧠 How It Works
-
-1. User logs in via login page
-2. JavaScript sends request to PHP API
-3. Controller validates user via Model
-4. PHP creates session
-5. Frontend checks session before access
-6. Data is fetched from MySQL
-
----
-
-# 🔥 Future Improvements
-
-- Replace MD5 with `password_hash()`
-- Add JWT authentication
-- Build React frontend
-- Add dashboard analytics
-- Improve role-based access control
-- Add API pagination and filtering
-
----
-
-# 👨‍💻 Author
-
-Student Project - MVC Learning System  
-Built for educational purposes in Computer Science studies.
-
----
-
-# ⚡ Notes
-
-- Run using XAMPP (Apache + MySQL)
-- Place project inside `htdocs`
-- Access via: http://localhost/student-MVC/public/login.html
+student-management-system/
+├── api/                # REST API Entry Points
+├── controllers/        # Logic & Request Handling
+├── models/             # Database Queries (PDO)
+├── config/             # DB Connection (Database.php)
+├── public/             # Assets & Frontend
+│   ├── css/            # Stylesheets
+│   ├── js/             # Frontend Logic (Fetch calls)
+│   └── views/          # HTML Templates
+├── db/                 # SQL Schema Exports
+└── index.php           # App Entry Point
