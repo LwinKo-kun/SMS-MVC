@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
@@ -31,14 +32,28 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <div className="dashboard-page">
+    <div className="dashboard-page mgmt-page">
       <section className="hero-section">
         <div className="hero-card">
-          <h2>Manage Everything Efficiently</h2>
+          <h2>Golden Ember SMS</h2>
           <p>
-            Students, courses, attendance, reports, and academic records in one
-            system.
+            Interactive dashboard — tap a metric or shortcut to jump straight
+            into work.
           </p>
+          <nav className="quick-links" aria-label="Shortcuts">
+            <Link className="quick-link" to="/students">
+              Students
+            </Link>
+            <Link className="quick-link" to="/courses">
+              Courses
+            </Link>
+            <Link className="quick-link" to="/attendance">
+              Attendance
+            </Link>
+            <Link className="quick-link" to="/reports">
+              Reports
+            </Link>
+          </nav>
         </div>
       </section>
 
@@ -47,10 +62,34 @@ const Dashboard = () => {
           <p className="stats-loading">Loading stats...</p>
         ) : (
           <>
-            <StatCard icon="👨‍🎓" title="Students" value={stats.students} />
-            <StatCard icon="📚" title="Courses" value={stats.courses} />
-            <StatCard icon="📝" title="Enrollments" value={stats.enrollments} />
-            <StatCard icon="🎯" title="Grade rows" value={stats.grade_entries} />
+            <Link className="stat-card stat-card--clickable" to="/students">
+              <div className="stat-card-icon" aria-hidden>
+                👨‍🎓
+              </div>
+              <h3>Students</h3>
+              <p className="stat-card-value">{stats.students}</p>
+            </Link>
+            <Link className="stat-card stat-card--clickable" to="/courses">
+              <div className="stat-card-icon" aria-hidden>
+                📚
+              </div>
+              <h3>Courses</h3>
+              <p className="stat-card-value">{stats.courses}</p>
+            </Link>
+            <Link className="stat-card stat-card--clickable" to="/students">
+              <div className="stat-card-icon" aria-hidden>
+                📝
+              </div>
+              <h3>Enrollments</h3>
+              <p className="stat-card-value">{stats.enrollments}</p>
+            </Link>
+            <Link className="stat-card stat-card--clickable" to="/reports">
+              <div className="stat-card-icon" aria-hidden>
+                🎯
+              </div>
+              <h3>Grade rows</h3>
+              <p className="stat-card-value">{stats.grade_entries}</p>
+            </Link>
           </>
         )}
       </section>
@@ -59,22 +98,22 @@ const Dashboard = () => {
         <FeatureCard
           icon="👨‍🎓"
           title="Students"
-          text="Manage student records and profiles."
+          text="Card directory with search — enroll without spreadsheet fatigue."
         />
         <FeatureCard
           icon="📚"
           title="Courses"
-          text="Organize courses and subjects."
+          text="Lifecycle chips and schedule tiles instead of wide tables."
         />
         <FeatureCard
           icon="📅"
           title="Attendance"
-          text="Track daily attendance easily."
+          text="One-tap status buttons plus a visual activity feed."
         />
         <FeatureCard
           icon="📊"
           title="Reports"
-          text="Generate academic reports instantly."
+          text="Tabbed insights: stacked bars, averages, enrollment cards."
         />
       </section>
 
@@ -84,16 +123,6 @@ const Dashboard = () => {
     </div>
   );
 };
-
-const StatCard = ({ icon, title, value }) => (
-  <div className="stat-card">
-    <div className="stat-card-icon" aria-hidden>
-      {icon}
-    </div>
-    <h3>{title}</h3>
-    <p className="stat-card-value">{value}</p>
-  </div>
-);
 
 const FeatureCard = ({ icon, title, text }) => (
   <div className="feature-card">

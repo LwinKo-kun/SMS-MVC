@@ -1,13 +1,22 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 
 const API = "http://localhost/student-MVC/backend/api";
 
 const isSuccessMessage = (msg) =>
     /saved|removed|enrolled|registered/i.test(msg || "");
 
+function initials(name) {
+    if (!name || typeof name !== "string") return "?";
+    const p = name.trim().split(/\s+/).filter(Boolean);
+    if (p.length === 0) return "?";
+    if (p.length === 1) return p[0].slice(0, 2).toUpperCase();
+    return (p[0][0] + p[p.length - 1][0]).toUpperCase();
+}
+
 const Students = () => {
     const [students, setStudents] = useState([]);
     const [courses, setCourses] = useState([]);
+    const [query, setQuery] = useState("");
     const [form, setForm] = useState({
         name: "",
         email: "",
@@ -39,6 +48,18 @@ const Students = () => {
     useEffect(() => {
         loadAll();
     }, [loadAll]);
+
+    const filtered = useMemo(() => {
+        const q = query.trim().toLowerCase();
+        if (!q) return students;
+        return students.filter(
+            (s) =>
+                String(s.name).toLowerCase().includes(q) ||
+                String(s.email).toLowerCase().includes(q) ||
+                String(s.phone || "").toLowerCase().includes(q) ||
+                String(s.student_id).includes(q)
+        );
+    }, [students, query]);
 
     const handleChange = (e) => {
         setForm({
@@ -169,14 +190,13 @@ const Students = () => {
     };
 
     return (
-        <div className="students-page students-page--layout">
+        <div className="students-page students-page--layout mgmt-page">
             <header className="page-header-block">
                 <h2 className="page-heading">Students</h2>
                 <p className="page-lead">
-                    Register people here, then enroll them into catalog courses.
-                    The text field “Course” is an informal label on the student
-                    row; official schedules use{" "}
-                    <strong>Enroll in a course</strong>.
+                    Register learners, then use enrollment to tie them to
+                    catalog offerings. Search and cards below replace the old
+                    single spreadsheet-style table.
                 </p>
             </header>
 
@@ -195,9 +215,10 @@ const Students = () => {
 
             <div className="two-column-panels">
                 <section className="panel-card panel-card--accent">
-                    <h3 className="panel-title">1 · Register student</h3>
+                    <h3 className="panel-title">Register</h3>
                     <p className="panel-hint">
-                        Creates a row in <code>students</code>.
+                        Adds to <code>students</code>. Informal “course” is
+                        just a label.
                     </p>
                     <form
                         className="stack-form"
@@ -236,7 +257,7 @@ const Students = () => {
                             />
                         </label>
                         <label className="field-label">
-                            Informal course note{" "}
+                            Cohort note{" "}
                             <span className="optional">optional</span>
                             <input
                                 type="text"
@@ -257,10 +278,9 @@ const Students = () => {
                 </section>
 
                 <section className="panel-card" id="enroll-panel">
-                    <h3 className="panel-title">2 · Enroll in a course</h3>
+                    <h3 className="panel-title">Enroll</h3>
                     <p className="panel-hint">
-                        Writes to <code>enrollments</code> (student + catalog
-                        course + date).
+                        Writes to <code>enrollments</code>.
                     </p>
                     <form className="stack-form" onSubmit={handleEnroll}>
                         <label className="field-label">
@@ -284,7 +304,7 @@ const Students = () => {
                             </select>
                         </label>
                         <label className="field-label">
-                            Course offering
+                            Course
                             <select
                                 value={enrollCourseId}
                                 onChange={(e) =>
@@ -304,7 +324,7 @@ const Students = () => {
                             </select>
                         </label>
                         <label className="field-label">
-                            Start / enroll date
+                            Enroll date
                             <input
                                 type="date"
                                 value={enrollDate}
@@ -317,12 +337,12 @@ const Students = () => {
                             className="btn-submit btn-submit--secondary"
                             disabled={submittingEnroll || courses.length === 0}
                         >
-                            {submittingEnroll ? "Enrolling…" : "Enroll student"}
+                            {submittingEnroll ? "Enrolling…" : "Enroll"}
                         </button>
                         {courses.length === 0 ? (
                             <p className="panel-hint panel-hint--warn">
-                                No catalog courses yet — open{" "}
-                                <strong>Courses</strong> and start one first.
+                                Create a course first under{" "}
+                                <strong>Courses</strong>.
                             </p>
                         ) : null}
                     </form>
@@ -330,68 +350,97 @@ const Students = () => {
             </div>
 
             <section className="panel-card panel-card--flush">
+                <div className="mgmt-toolbar">
+                    <div className="mgmt-toolbar__grow">
+                        <input
+                            type="search"
+                            className="mgmt-search"
+                            placeholder="Search name, email, phone, or ID…"
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                            aria-label="Filter students"
+                        />
+                    </div>
+                    <span className="mgmt-badge">
+                        Showing {filtered.length} of {students.length}
+                    </span>
+                </div>
+
                 <h3 className="panel-title">Directory</h3>
                 <p className="panel-hint">
-                    Use <strong>Enroll</strong> to jump to enrollment with that
-                    student selected.
+                    Cards are interactive (hover).{" "}
+                    <strong>Enroll</strong> jumps to the form with this student.
                 </p>
-                <div className="table-wrap">
-                    <table className="data-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Phone</th>
-                                <th>Note</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {students.length === 0 ? (
-                                <tr>
-                                    <td colSpan={6} className="data-table-empty">
-                                        No students yet — register someone above.
-                                    </td>
-                                </tr>
-                            ) : (
-                                students.map((student) => (
-                                    <tr key={student.student_id}>
-                                        <td>{student.student_id}</td>
-                                        <td>{student.name}</td>
-                                        <td>{student.email}</td>
-                                        <td>{student.phone || "—"}</td>
-                                        <td>{student.course || "—"}</td>
-                                        <td className="cell-actions">
-                                            <button
-                                                type="button"
-                                                className="btn-enroll"
-                                                onClick={() =>
-                                                    startEnrollFor(
-                                                        student.student_id
-                                                    )
-                                                }
-                                            >
-                                                Enroll
-                                            </button>
-                                            <button
-                                                type="button"
-                                                className="btn-delete"
-                                                onClick={() =>
-                                                    deleteStudent(
-                                                        student.student_id
-                                                    )
-                                                }
-                                            >
-                                                Delete
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+
+                {students.length === 0 ? (
+                    <div className="empty-state">
+                        <p>No students yet — add someone with Register.</p>
+                    </div>
+                ) : filtered.length === 0 ? (
+                    <div className="empty-state">
+                        <p>No matches for that search.</p>
+                    </div>
+                ) : (
+                    <div className="card-grid">
+                        {filtered.map((student) => (
+                            <article
+                                key={student.student_id}
+                                className="entity-card"
+                            >
+                                <div className="entity-card__top">
+                                    <div
+                                        className="entity-avatar"
+                                        aria-hidden
+                                    >
+                                        {initials(student.name)}
+                                    </div>
+                                    <div>
+                                        <h4 className="entity-card__title">
+                                            {student.name}
+                                        </h4>
+                                        <p className="entity-card__meta">
+                                            ID #{student.student_id}
+                                        </p>
+                                    </div>
+                                </div>
+                                <dl className="entity-kv">
+                                    <div>
+                                        <dt>Email</dt>
+                                        <dd>{student.email}</dd>
+                                    </div>
+                                    <div>
+                                        <dt>Phone</dt>
+                                        <dd>{student.phone || "—"}</dd>
+                                    </div>
+                                    <div>
+                                        <dt>Note</dt>
+                                        <dd>{student.course || "—"}</dd>
+                                    </div>
+                                </dl>
+                                <div className="entity-card__actions">
+                                    <button
+                                        type="button"
+                                        className="btn-ghost"
+                                        onClick={() =>
+                                            startEnrollFor(student.student_id)
+                                        }
+                                    >
+                                        Enroll
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="btn-delete"
+                                        onClick={() =>
+                                            deleteStudent(student.student_id)
+                                        }
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
+                            </article>
+                        ))}
+                    </div>
+                )}
             </section>
         </div>
     );

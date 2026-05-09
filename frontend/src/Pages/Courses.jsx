@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 
 const API = "http://localhost/student-MVC/backend/api";
 
@@ -16,8 +16,17 @@ const fmtDate = (d) => {
       });
 };
 
+const FILTERS = [
+  { id: "all", label: "All" },
+  { id: "active", label: "Active" },
+  { id: "planned", label: "Planned" },
+  { id: "completed", label: "Completed" },
+  { id: "cancelled", label: "Cancelled" }
+];
+
 const Courses = () => {
   const [courses, setCourses] = useState([]);
+  const [filter, setFilter] = useState("all");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -50,6 +59,11 @@ const Courses = () => {
   useEffect(() => {
     loadCourses();
   }, [loadCourses]);
+
+  const visible = useMemo(() => {
+    if (filter === "all") return courses;
+    return courses.filter((c) => c.status === filter);
+  }, [courses, filter]);
 
   const handleNewChange = (e) => {
     const { name, value } = e.target;
@@ -107,7 +121,7 @@ const Courses = () => {
         status: "active",
         instructor: ""
       });
-      setMessage("Course started — visible in the catalog with schedule.");
+      setMessage("Course started — check the catalog cards.");
       await loadCourses();
     } catch {
       setMessage("Network error.");
@@ -117,13 +131,12 @@ const Courses = () => {
   };
 
   return (
-    <div className="page-wide courses-page">
+    <div className="page-wide courses-page mgmt-page">
       <header className="page-header-block">
         <h2 className="page-heading">Courses</h2>
         <p className="page-lead">
-          Each offering has a <strong>start date</strong>,{" "}
-          <strong>duration</strong> (weeks), credits, and optional instructor.
-          Estimated end date is computed automatically.
+          Offerings show as <strong>cards</strong> with schedule chips. Filter
+          by lifecycle status instead of scanning a wide table.
         </p>
       </header>
 
@@ -144,11 +157,11 @@ const Courses = () => {
         <section className="panel-card panel-card--accent">
           <h3 className="panel-title">Start a course</h3>
           <p className="panel-hint">
-            Codes must be unique. Duration is whole weeks from the start date.
+            Unique code · duration is whole weeks from start.
           </p>
           <form className="stack-form" onSubmit={startCourse}>
             <label className="field-label">
-              Course title
+              Title
               <input
                 type="text"
                 name="course_name"
@@ -159,7 +172,7 @@ const Courses = () => {
               />
             </label>
             <label className="field-label">
-              Course code
+              Code
               <input
                 type="text"
                 name="course_code"
@@ -171,7 +184,7 @@ const Courses = () => {
             </label>
             <div className="form-row-2">
               <label className="field-label">
-                Start date
+                Start
                 <input
                   type="date"
                   name="start_date"
@@ -181,7 +194,7 @@ const Courses = () => {
                 />
               </label>
               <label className="field-label">
-                Duration (weeks)
+                Weeks
                 <input
                   type="number"
                   name="duration_weeks"
@@ -235,7 +248,7 @@ const Courses = () => {
                 name="description"
                 className="input-textarea"
                 rows={3}
-                placeholder="Short summary for the catalog…"
+                placeholder="Catalog blurb…"
                 value={newCourse.description}
                 onChange={handleNewChange}
               />
@@ -247,67 +260,87 @@ const Courses = () => {
         </section>
 
         <section className="panel-card panel-card--compact-aside">
-          <h3 className="panel-title">Notes</h3>
+          <h3 className="panel-title">Workflow</h3>
           <ul className="hint-list">
             <li>
-              <strong>End date</strong> in the table = start + duration (weeks).
+              Cards summarize schedule: start → estimated end after{" "}
+              <em>N</em> weeks.
             </li>
             <li>
-              Enroll students from <strong>Students → Enroll</strong> after the
-              catalog row exists.
+              Enrollments happen under <strong>Students</strong>.
             </li>
             <li>
-              Grades and attendance attach to the same <code>course_id</code>.
+              Grades & attendance reference the same course row.
             </li>
           </ul>
         </section>
       </div>
 
       <section className="panel-card panel-card--flush">
-        <h3 className="panel-title">Catalog ({courses.length})</h3>
+        <div className="mgmt-toolbar">
+          <div className="chip-filter-row">
+            {FILTERS.map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                className={`chip-filter${filter === f.id ? " is-active" : ""}`}
+                onClick={() => setFilter(f.id)}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+          <span className="mgmt-badge">{visible.length} visible</span>
+        </div>
+
+        <h3 className="panel-title">Catalog</h3>
+
         {loading ? (
-          <p className="muted">Loading catalog…</p>
+          <p className="muted">Loading…</p>
         ) : courses.length === 0 ? (
-          <p className="muted">
-            Nothing yet — run <code>backend/database/schema.sql</code> or start a
-            course above.
-          </p>
+          <div className="empty-state">
+            <p>No offerings yet — create one above or import schema SQL.</p>
+          </div>
+        ) : visible.length === 0 ? (
+          <div className="empty-state">
+            <p>No courses match this filter.</p>
+          </div>
         ) : (
-          <div className="table-wrap">
-            <table className="data-table data-table--dense">
-              <thead>
-                <tr>
-                  <th>Code</th>
-                  <th>Title</th>
-                  <th>Start</th>
-                  <th>Weeks</th>
-                  <th>Est. end</th>
-                  <th>Credits</th>
-                  <th>Status</th>
-                  <th>Instructor</th>
-                </tr>
-              </thead>
-              <tbody>
-                {courses.map((c) => (
-                  <tr key={c.course_id}>
-                    <td>
-                      <span className="course-code-pill">{c.course_code}</span>
-                    </td>
-                    <td>{c.course_name}</td>
-                    <td>{fmtDate(c.start_date)}</td>
-                    <td>{c.duration_weeks}</td>
-                    <td>{fmtDate(c.end_date)}</td>
-                    <td>{c.credits}</td>
-                    <td>
-                      <span className={`status-pill status-pill--${c.status}`}>
-                        {c.status}
-                      </span>
-                    </td>
-                    <td>{c.instructor || "—"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="card-grid">
+            {visible.map((c) => (
+              <article key={c.course_id} className="entity-card">
+                <div className="entity-card__top entity-card__top--split">
+                  <div className="entity-card__main">
+                    <span className="course-code-pill">{c.course_code}</span>
+                    <h4 className="entity-card__title" style={{ marginTop: "0.5rem" }}>
+                      {c.course_name}
+                    </h4>
+                    <div className="course-card__schedule">
+                      <span>{fmtDate(c.start_date)}</span>
+                      <span>→</span>
+                      <span>{fmtDate(c.end_date)}</span>
+                      <span>{c.duration_weeks} wk</span>
+                    </div>
+                  </div>
+                  <span className={`status-pill status-pill--${c.status}`}>
+                    {c.status}
+                  </span>
+                </div>
+                <dl className="entity-kv">
+                  <div>
+                    <dt>Credits</dt>
+                    <dd>{c.credits}</dd>
+                  </div>
+                  <div>
+                    <dt>Instructor</dt>
+                    <dd>{c.instructor || "—"}</dd>
+                  </div>
+                </dl>
+                {c.description ? (
+                  <p className="course-card__desc">{c.description}</p>
+                ) : null}
+              </article>
+            ))}
           </div>
         )}
       </section>

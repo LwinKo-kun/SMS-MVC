@@ -2,7 +2,50 @@ import React, { useEffect, useState, useCallback } from "react";
 
 const API = "http://localhost/student-MVC/backend/api";
 
+const TABS = [
+  { id: "overview", label: "Overview" },
+  { id: "grades", label: "Grades" },
+  { id: "attendance", label: "Attendance" },
+  { id: "enrollments", label: "Enrollments" }
+];
+
+function AttendanceBarRow({ row }) {
+  const p = Number(row.present_count) || 0;
+  const a = Number(row.absent_count) || 0;
+  const l = Number(row.late_count) || 0;
+  const t = p + a + l || 1;
+
+  return (
+    <div className="att-bar-card">
+      <div className="att-bar-card__head">
+        <strong>{row.course_name}</strong>
+        <span className="course-code-pill">{row.course_code}</span>
+      </div>
+      <div className="att-bar-track" title={`Present ${p}, absent ${a}, late ${l}`}>
+        <div
+          className="att-bar-seg att-bar-seg--p"
+          style={{ width: `${(p / t) * 100}%` }}
+        />
+        <div
+          className="att-bar-seg att-bar-seg--a"
+          style={{ width: `${(a / t) * 100}%` }}
+        />
+        <div
+          className="att-bar-seg att-bar-seg--l"
+          style={{ width: `${(l / t) * 100}%` }}
+        />
+      </div>
+      <div className="att-bar-legend">
+        <span>Present {p}</span>
+        <span>Absent {a}</span>
+        <span>Late {l}</span>
+      </div>
+    </div>
+  );
+}
+
 const Reports = () => {
+  const [tab, setTab] = useState("overview");
   const [data, setData] = useState(null);
   const [students, setStudents] = useState([]);
   const [courses, setCourses] = useState([]);
@@ -115,8 +158,8 @@ const Reports = () => {
 
   if (loading && !data) {
     return (
-      <div className="page-wide">
-        <h2 className="page-heading">📊 Reports</h2>
+      <div className="page-wide mgmt-page">
+        <h2 className="page-heading">Reports</h2>
         <p className="muted">Loading…</p>
       </div>
     );
@@ -124,8 +167,8 @@ const Reports = () => {
 
   if (error || !data) {
     return (
-      <div className="page-wide">
-        <h2 className="page-heading">📊 Reports</h2>
+      <div className="page-wide mgmt-page">
+        <h2 className="page-heading">Reports</h2>
         <p className="form-feedback form-feedback--error">{error}</p>
       </div>
     );
@@ -142,293 +185,270 @@ const Reports = () => {
     : [];
 
   return (
-    <div className="page-wide reports-page">
-      <h2 className="page-heading">📊 Reports</h2>
+    <div className="page-wide reports-page mgmt-page">
+      <h2 className="page-heading">Reports</h2>
       <p className="page-lead">
-        Summary counts, attendance, enrollments, grade averages by course, and a
-        ledger of grade entries. Recording here upserts by student + course +
-        assessment name.
+        Use tabs to focus each area — charts and cards replace raw tables so
+        totals and trends read faster.
       </p>
 
-      <section className="reports-stats">
-        <div className="stat-card stat-card--compact">
-          <h3>Students</h3>
-          <p className="stat-card-value">{stats.students ?? "—"}</p>
-        </div>
-        <div className="stat-card stat-card--compact">
-          <h3>Courses</h3>
-          <p className="stat-card-value">{stats.courses ?? "—"}</p>
-        </div>
-        <div className="stat-card stat-card--compact">
-          <h3>Enrollments</h3>
-          <p className="stat-card-value">{stats.enrollments ?? "—"}</p>
-        </div>
-        <div className="stat-card stat-card--compact">
-          <h3>Grade rows</h3>
-          <p className="stat-card-value">{stats.grade_entries ?? "—"}</p>
-        </div>
-      </section>
-
-      <section className="panel-card">
-        <h3 className="panel-title">Record or update a grade</h3>
-        <p className="panel-hint">
-          Same assessment name for the same student + course updates the row.
-          Leave score empty if you only use letter grades.
-        </p>
-        {gradeMsg ? (
-          <p
-            className={
-              /saved/i.test(gradeMsg)
-                ? "form-feedback form-feedback--success"
-                : "form-feedback form-feedback--error"
-            }
+      <div className="mgmt-tabs" role="tablist" aria-label="Report sections">
+        {TABS.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            role="tab"
+            aria-selected={tab === t.id}
+            className={`mgmt-tab${tab === t.id ? " is-active" : ""}`}
+            onClick={() => setTab(t.id)}
           >
-            {gradeMsg}
-          </p>
-        ) : null}
-        <form className="stack-form" onSubmit={saveGrade}>
-          <div className="form-row-2">
-            <label className="field-label">
-              Student
-              <select
-                value={gradeForm.student_id}
-                onChange={(e) =>
-                  setGradeForm((p) => ({
-                    ...p,
-                    student_id: e.target.value
-                  }))
-                }
-                required
-              >
-                <option value="">Select…</option>
-                {students.map((s) => (
-                  <option key={s.student_id} value={s.student_id}>
-                    {s.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="field-label">
-              Course
-              <select
-                value={gradeForm.course_id}
-                onChange={(e) =>
-                  setGradeForm((p) => ({ ...p, course_id: e.target.value }))
-                }
-                required
-              >
-                <option value="">Select…</option>
-                {courses.map((c) => (
-                  <option key={c.course_id} value={c.course_id}>
-                    {c.course_code} — {c.course_name}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-          <label className="field-label">
-            Assessment name
-            <input
-              type="text"
-              value={gradeForm.assessment_name}
-              onChange={(e) =>
-                setGradeForm((p) => ({
-                  ...p,
-                  assessment_name: e.target.value
-                }))
-              }
-              placeholder="e.g. Final exam, Midterm, Project"
-            />
-          </label>
-          <div className="form-row-2">
-            <label className="field-label">
-              Score % <span className="optional">0–100</span>
-              <input
-                type="number"
-                step="0.01"
-                min={0}
-                max={100}
-                value={gradeForm.score_percent}
-                onChange={(e) =>
-                  setGradeForm((p) => ({
-                    ...p,
-                    score_percent: e.target.value
-                  }))
-                }
-                placeholder="e.g. 87.5"
-              />
-            </label>
-            <label className="field-label">
-              Letter <span className="optional">optional</span>
-              <input
-                type="text"
-                value={gradeForm.letter_grade}
-                onChange={(e) =>
-                  setGradeForm((p) => ({
-                    ...p,
-                    letter_grade: e.target.value
-                  }))
-                }
-                placeholder="e.g. B+"
-              />
-            </label>
-          </div>
-          <label className="field-label">
-            Notes <span className="optional">optional</span>
-            <input
-              type="text"
-              value={gradeForm.notes}
-              onChange={(e) =>
-                setGradeForm((p) => ({ ...p, notes: e.target.value }))
-              }
-              placeholder="Optional comment"
-            />
-          </label>
-          <button type="submit" className="btn-submit" disabled={gradeSaving}>
-            {gradeSaving ? "Saving…" : "Save grade"}
+            {t.label}
           </button>
-        </form>
-      </section>
+        ))}
+      </div>
 
-      <section className="panel-card panel-card--flush">
-        <h3 className="panel-title">Grade overview by course</h3>
-        {gradeOverview.length === 0 ? (
-          <p className="muted">No graded scores yet.</p>
-        ) : (
-          <div className="table-wrap">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Code</th>
-                  <th>Course</th>
-                  <th>Students graded</th>
-                  <th>Avg score %</th>
-                </tr>
-              </thead>
-              <tbody>
-                {gradeOverview.map((row, i) => (
-                  <tr key={`${row.course_code}-${i}`}>
-                    <td>{row.course_code}</td>
-                    <td>{row.course_name}</td>
-                    <td>{row.students_graded}</td>
-                    <td>
-                      {row.avg_score_percent != null
-                        ? Number(row.avg_score_percent).toFixed(1)
-                        : "—"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      {tab === "overview" ? (
+        <>
+          <div className="metric-grid-mini">
+            <div className="metric-tile">
+              <p className="metric-tile__label">Students</p>
+              <p className="metric-tile__value">{stats.students ?? "—"}</p>
+            </div>
+            <div className="metric-tile">
+              <p className="metric-tile__label">Courses</p>
+              <p className="metric-tile__value">{stats.courses ?? "—"}</p>
+            </div>
+            <div className="metric-tile">
+              <p className="metric-tile__label">Enrollments</p>
+              <p className="metric-tile__value">{stats.enrollments ?? "—"}</p>
+            </div>
+            <div className="metric-tile">
+              <p className="metric-tile__label">Grade rows</p>
+              <p className="metric-tile__value">{stats.grade_entries ?? "—"}</p>
+            </div>
           </div>
-        )}
-      </section>
+          <p className="panel-hint" style={{ marginTop: "1rem" }}>
+            Switch to <strong>Grades</strong> to enter scores,{" "}
+            <strong>Attendance</strong> for participation bars, or{" "}
+            <strong>Enrollments</strong> for who joined which offering.
+          </p>
+        </>
+      ) : null}
 
-      <section className="panel-card panel-card--flush">
-        <h3 className="panel-title">Grade ledger</h3>
-        {grades.length === 0 ? (
-          <p className="muted">No grade rows.</p>
-        ) : (
-          <div className="table-wrap">
-            <table className="data-table data-table--dense">
-              <thead>
-                <tr>
-                  <th>When</th>
-                  <th>Student</th>
-                  <th>Course</th>
-                  <th>Assessment</th>
-                  <th>Score %</th>
-                  <th>Letter</th>
-                </tr>
-              </thead>
-              <tbody>
-                {grades.map((g) => (
-                  <tr key={g.grade_id}>
-                    <td>
+      {tab === "grades" ? (
+        <>
+          <section className="panel-card">
+            <h3 className="panel-title">Record grade</h3>
+            <p className="panel-hint">
+              Same student + course + assessment updates the existing row.
+            </p>
+            {gradeMsg ? (
+              <p
+                className={
+                  /saved/i.test(gradeMsg)
+                    ? "form-feedback form-feedback--success"
+                    : "form-feedback form-feedback--error"
+                }
+              >
+                {gradeMsg}
+              </p>
+            ) : null}
+            <form className="stack-form" onSubmit={saveGrade}>
+              <div className="form-row-2">
+                <label className="field-label">
+                  Student
+                  <select
+                    value={gradeForm.student_id}
+                    onChange={(e) =>
+                      setGradeForm((p) => ({
+                        ...p,
+                        student_id: e.target.value
+                      }))
+                    }
+                    required
+                  >
+                    <option value="">Select…</option>
+                    {students.map((s) => (
+                      <option key={s.student_id} value={s.student_id}>
+                        {s.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="field-label">
+                  Course
+                  <select
+                    value={gradeForm.course_id}
+                    onChange={(e) =>
+                      setGradeForm((p) => ({
+                        ...p,
+                        course_id: e.target.value
+                      }))
+                    }
+                    required
+                  >
+                    <option value="">Select…</option>
+                    {courses.map((c) => (
+                      <option key={c.course_id} value={c.course_id}>
+                        {c.course_code} — {c.course_name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+              <label className="field-label">
+                Assessment
+                <input
+                  type="text"
+                  value={gradeForm.assessment_name}
+                  onChange={(e) =>
+                    setGradeForm((p) => ({
+                      ...p,
+                      assessment_name: e.target.value
+                    }))
+                  }
+                  placeholder="Midterm, Final…"
+                />
+              </label>
+              <div className="form-row-2">
+                <label className="field-label">
+                  Score %
+                  <input
+                    type="number"
+                    step="0.01"
+                    min={0}
+                    max={100}
+                    value={gradeForm.score_percent}
+                    onChange={(e) =>
+                      setGradeForm((p) => ({
+                        ...p,
+                        score_percent: e.target.value
+                      }))
+                    }
+                  />
+                </label>
+                <label className="field-label">
+                  Letter
+                  <input
+                    type="text"
+                    value={gradeForm.letter_grade}
+                    onChange={(e) =>
+                      setGradeForm((p) => ({
+                        ...p,
+                        letter_grade: e.target.value
+                      }))
+                    }
+                  />
+                </label>
+              </div>
+              <label className="field-label">
+                Notes
+                <input
+                  type="text"
+                  value={gradeForm.notes}
+                  onChange={(e) =>
+                    setGradeForm((p) => ({ ...p, notes: e.target.value }))
+                  }
+                />
+              </label>
+              <button type="submit" className="btn-submit" disabled={gradeSaving}>
+                {gradeSaving ? "Saving…" : "Save grade"}
+              </button>
+            </form>
+          </section>
+
+          <h3 className="panel-title">Average by course</h3>
+          {gradeOverview.length === 0 ? (
+            <div className="empty-state">
+              <p>No numeric averages yet — add scores above.</p>
+            </div>
+          ) : (
+            <div className="card-grid">
+              {gradeOverview.map((row, i) => (
+                <div key={`${row.course_code}-${i}`} className="grade-ring-card">
+                  <p className="metric-tile__label">{row.course_code}</p>
+                  <p className="grade-ring-card__avg">
+                    {row.avg_score_percent != null
+                      ? Number(row.avg_score_percent).toFixed(1)
+                      : "—"}
+                  </p>
+                  <p className="grade-ring-card__sub">{row.course_name}</p>
+                  <p className="grade-ring-card__sub">
+                    {row.students_graded} graded
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <h3 className="panel-title" style={{ marginTop: "1.5rem" }}>
+            Ledger
+          </h3>
+          {grades.length === 0 ? (
+            <p className="muted">No entries.</p>
+          ) : (
+            <div className="feed-list">
+              {grades.map((g) => (
+                <div key={g.grade_id} className="feed-item">
+                  <div className="feed-item__rail" aria-hidden />
+                  <div className="feed-item__body">
+                    <p className="feed-item__title">{g.student_name}</p>
+                    <p className="feed-item__sub">
+                      {g.course_code} · {g.assessment_name}
+                    </p>
+                    <p className="feed-item__sub">
+                      {g.score_percent != null ? `${g.score_percent}%` : "—"}
+                      {g.letter_grade ? ` · ${g.letter_grade}` : ""}
                       {g.recorded_at
-                        ? new Date(g.recorded_at).toLocaleString()
-                        : "—"}
-                    </td>
-                    <td>{g.student_name}</td>
-                    <td>
-                      {g.course_code} — {g.course_name}
-                    </td>
-                    <td>{g.assessment_name}</td>
-                    <td>
-                      {g.score_percent != null ? g.score_percent : "—"}
-                    </td>
-                    <td>{g.letter_grade || "—"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
+                        ? ` · ${new Date(g.recorded_at).toLocaleString()}`
+                        : ""}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      ) : null}
 
-      <section className="panel-card panel-card--flush">
-        <h3 className="panel-title">Attendance by course</h3>
-        {att.length === 0 ? (
-          <p className="muted">No attendance data yet.</p>
-        ) : (
-          <div className="table-wrap">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Course</th>
-                  <th>Code</th>
-                  <th>Present</th>
-                  <th>Absent</th>
-                  <th>Late</th>
-                </tr>
-              </thead>
-              <tbody>
-                {att.map((row, i) => (
-                  <tr key={`${row.course_code}-${i}`}>
-                    <td>{row.course_name}</td>
-                    <td>{row.course_code}</td>
-                    <td>{row.present_count}</td>
-                    <td>{row.absent_count}</td>
-                    <td>{row.late_count}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
+      {tab === "attendance" ? (
+        <>
+          {att.length === 0 ? (
+            <div className="empty-state">
+              <p>No attendance logged yet — use the Attendance page.</p>
+            </div>
+          ) : (
+            att.map((row, i) => (
+              <AttendanceBarRow key={`${row.course_code}-${i}`} row={row} />
+            ))
+          )}
+        </>
+      ) : null}
 
-      <section className="panel-card panel-card--flush">
-        <h3 className="panel-title">Recent enrollments</h3>
-        {enrollments.length === 0 ? (
-          <p className="muted">No enrollments yet.</p>
-        ) : (
-          <div className="table-wrap">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Student</th>
-                  <th>Email</th>
-                  <th>Course</th>
-                  <th>Code</th>
-                </tr>
-              </thead>
-              <tbody>
-                {enrollments.map((e) => (
-                  <tr key={e.enrollment_id}>
-                    <td>{e.enroll_date}</td>
-                    <td>{e.student_name}</td>
-                    <td>{e.student_email}</td>
-                    <td>{e.course_name}</td>
-                    <td>{e.course_code}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
+      {tab === "enrollments" ? (
+        <>
+          {enrollments.length === 0 ? (
+            <div className="empty-state">
+              <p>No enrollments — pair students with courses first.</p>
+            </div>
+          ) : (
+            <div className="feed-list">
+              {enrollments.map((e) => (
+                <div key={e.enrollment_id} className="enroll-card">
+                  <div className="enroll-card__date">{e.enroll_date}</div>
+                  <div>
+                    <p className="feed-item__title">{e.student_name}</p>
+                    <p className="feed-item__sub">{e.student_email}</p>
+                    <p className="feed-item__sub">
+                      <strong>{e.course_code}</strong> — {e.course_name}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      ) : null}
     </div>
   );
 };

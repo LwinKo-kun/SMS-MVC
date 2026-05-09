@@ -2,6 +2,18 @@ import React, { useEffect, useState } from "react";
 
 const API = "http://localhost/student-MVC/backend/api";
 
+const STATUSES = [
+  { id: "present", label: "Present", emoji: "✓" },
+  { id: "absent", label: "Absent", emoji: "✗" },
+  { id: "late", label: "Late", emoji: "⏱" }
+];
+
+const railClass = {
+  present: "feed-item__rail feed-item__rail--present",
+  absent: "feed-item__rail feed-item__rail--absent",
+  late: "feed-item__rail feed-item__rail--late"
+};
+
 const Attendance = () => {
   const [rows, setRows] = useState([]);
   const [students, setStudents] = useState([]);
@@ -77,11 +89,11 @@ const Attendance = () => {
   };
 
   return (
-    <div className="page-wide">
-      <h2 className="page-heading">📅 Attendance</h2>
+    <div className="page-wide mgmt-page">
+      <h2 className="page-heading">Attendance</h2>
       <p className="page-lead">
-        Records go to the <code>attendance</code> table (student + course +
-        date + status).
+        Tap a status for quick selection, then save. Recent marks appear as a
+        timeline-style feed instead of a grid table.
       </p>
 
       {message ? (
@@ -97,84 +109,102 @@ const Attendance = () => {
         </p>
       ) : null}
 
-      <section className="panel-card">
+      <section className="panel-card panel-card--accent">
         <h3 className="panel-title">Mark attendance</h3>
-        <form className="inline-form inline-form--wrap" onSubmit={save}>
-          <select
-            value={studentId}
-            onChange={(e) => setStudentId(e.target.value)}
-            required
-            aria-label="Student"
-          >
-            <option value="">Student…</option>
-            {students.map((s) => (
-              <option key={s.student_id} value={s.student_id}>
-                {s.name}
-              </option>
-            ))}
-          </select>
-          <select
-            value={courseId}
-            onChange={(e) => setCourseId(e.target.value)}
-            required
-            aria-label="Course"
-          >
-            <option value="">Course…</option>
-            {courses.map((c) => (
-              <option key={c.course_id} value={c.course_id}>
-                {c.course_name}
-              </option>
-            ))}
-          </select>
-          <input
-            type="date"
-            value={attDate}
-            onChange={(e) => setAttDate(e.target.value)}
-            aria-label="Date"
-          />
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            aria-label="Status"
-          >
-            <option value="present">Present</option>
-            <option value="absent">Absent</option>
-            <option value="late">Late</option>
-          </select>
+        <form className="stack-form" onSubmit={save}>
+          <label className="field-label">
+            Student
+            <select
+              value={studentId}
+              onChange={(e) => setStudentId(e.target.value)}
+              required
+            >
+              <option value="">Choose…</option>
+              {students.map((s) => (
+                <option key={s.student_id} value={s.student_id}>
+                  {s.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="field-label">
+            Course
+            <select
+              value={courseId}
+              onChange={(e) => setCourseId(e.target.value)}
+              required
+            >
+              <option value="">Choose…</option>
+              {courses.map((c) => (
+                <option key={c.course_id} value={c.course_id}>
+                  {c.course_code} — {c.course_name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="field-label">
+            Session date
+            <input
+              type="date"
+              value={attDate}
+              onChange={(e) => setAttDate(e.target.value)}
+              required
+            />
+          </label>
+          <div>
+            <span className="field-label" style={{ marginBottom: "0.45rem" }}>
+              Status
+            </span>
+            <div className="att-status-pick" role="group" aria-label="Status">
+              {STATUSES.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  data-status={s.id}
+                  className={`att-status-btn${status === s.id ? " is-selected" : ""}`}
+                  onClick={() => setStatus(s.id)}
+                >
+                  {s.emoji} {s.label}
+                </button>
+              ))}
+            </div>
+          </div>
           <button type="submit" className="btn-submit">
-            Save
+            Save mark
           </button>
         </form>
       </section>
 
-      <section className="panel-card panel-card--flush">
-        <h3 className="panel-title">Recent records</h3>
+      <section className="panel-card panel-card--ghost">
+        <h3 className="panel-title">Recent activity</h3>
         {loading ? (
           <p className="muted">Loading…</p>
         ) : rows.length === 0 ? (
-          <p className="muted">No attendance rows yet.</p>
+          <div className="empty-state">
+            <p>No marks yet — use the form above.</p>
+          </div>
         ) : (
-          <div className="table-wrap">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Student</th>
-                  <th>Course</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((r) => (
-                  <tr key={r.attendance_id}>
-                    <td>{r.att_date}</td>
-                    <td>{r.student_name}</td>
-                    <td>{r.course_name}</td>
-                    <td>{r.status}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="feed-list">
+            {rows.map((r) => (
+              <div key={r.attendance_id} className="feed-item">
+                <div
+                  className={railClass[r.status] || "feed-item__rail"}
+                  aria-hidden
+                />
+                <div className="feed-item__body">
+                  <p className="feed-item__title">{r.student_name}</p>
+                  <p className="feed-item__sub">{r.course_name}</p>
+                  <p className="feed-item__sub">
+                    <strong>{r.att_date}</strong> ·{" "}
+                    <span
+                      className={`status-pill status-pill--att-${r.status}`}
+                    >
+                      {r.status}
+                    </span>
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </section>
