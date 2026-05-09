@@ -1,15 +1,10 @@
 # 🎓 Student Management System
-### MVC Architecture + REST API + MySQL
+### PHP MVC + REST API + MySQL
 
-A full-stack **Student Management System** built with:
+A full-stack **Student Management System** built using **PHP MVC Architecture** and **REST API principles**.  
+This system manages students, courses, enrollments, attendance, grades, and authentication.
 
-- 🐘 PHP (MVC Architecture)
-- 🗄️ MySQL Database
-- 🌐 REST API
-- ⚡ JavaScript Fetch API
-- 🎨 HTML/CSS Frontend
-
-This project manages students, courses, enrollments, grades, attendance, and authentication using a clean MVC structure.
+🔗 Repository: https://github.com/LwinKo-kun/SMS-MVC.git
 
 ---
 
@@ -24,14 +19,14 @@ A[User Opens Website] --> B[Login Page]
 
 B --> C{Authentication}
 
-C -->|Valid User| D[Dashboard]
-C -->|Invalid User| E[Error Message]
+C -->|Valid Login| D[Dashboard]
+C -->|Invalid Login| E[Error Message]
 
 D --> F[Student Management]
 D --> G[Course Management]
-D --> H[Enrollment System]
-D --> I[Attendance System]
-D --> J[Grades System]
+D --> H[Enrollment Management]
+D --> I[Attendance Management]
+D --> J[Grades Management]
 
 F --> K[(MySQL Database)]
 G --> K
@@ -42,13 +37,13 @@ J --> K
 
 ---
 
-# 🏗️ MVC Architecture Flow
+# 🏗️ MVC Architecture
 
 ```mermaid
 flowchart LR
 
 A[Frontend HTML CSS JavaScript]
---> B[REST API Request]
+--> B[REST API]
 
 B --> C[Controller]
 
@@ -132,10 +127,10 @@ COURSES ||--o{ ATTENDANCE : tracks
 # 🚀 Features
 
 ## 🔐 Authentication System
-- Admin / Teacher Login
+- Admin & Teacher Login
 - Session-Based Authentication
-- Secure User Validation
 - Role Management
+- Secure API Validation
 
 ---
 
@@ -149,30 +144,30 @@ COURSES ||--o{ ATTENDANCE : tracks
 
 ## 📚 Course Management
 - Create Courses
-- Manage Course Credits
-- Unique Course Codes
+- Manage Credits
 - Course Descriptions
+- Unique Course Codes
 
 ---
 
 ## 📝 Enrollment Management
 - Assign Students to Courses
 - Track Enrollment Dates
-- Manage Relationships
+- Manage Student-Course Relationships
 
 ---
 
 ## 📊 Grades System
-- Store Student Grades
-- Course-Based Grading
-- Academic Tracking
+- Store Grades Per Course
+- Academic Performance Tracking
+- Student Grade Records
 
 ---
 
 ## 📅 Attendance System
-- Mark Attendance
 - Present / Absent / Late Status
-- Attendance Tracking by Date
+- Attendance Tracking
+- Course-Based Attendance Records
 
 ---
 
@@ -197,7 +192,7 @@ student-MVC/
 ├── app/
 │   ├── controllers/
 │   ├── models/
-│   ├── views/
+│   └── views/
 │
 ├── api/
 │
@@ -229,7 +224,7 @@ student-MVC/
 
 ---
 
-# ⚙️ How The System Works
+# ⚙️ System Workflow
 
 ```mermaid
 sequenceDiagram
@@ -242,14 +237,14 @@ participant Model
 participant Database
 
 User->>Frontend: Login Request
-Frontend->>API: Send Fetch Request
+Frontend->>API: Fetch API Request
 API->>Controller: Process Request
 Controller->>Model: Validate Data
-Model->>Database: Execute SQL Query
-Database-->>Model: Return Data
+Model->>Database: Execute Query
+Database-->>Model: Return Result
 Model-->>Controller: Response
 Controller-->>Frontend: JSON Response
-Frontend-->>User: Display Dashboard
+Frontend-->>User: Update UI
 ```
 
 ---
@@ -267,19 +262,18 @@ B --> C{Valid Credentials?}
 C -->|Yes| D[Create Session]
 D --> E[Redirect Dashboard]
 
-C -->|No| F[Show Login Error]
+C -->|No| F[Display Error Message]
 ```
 
 ---
 
-# 🛠️ Installation Guide
+# 💻 Installation Guide
 
 ## 📌 Requirements
-
 - PHP 8+
 - MySQL / MariaDB
 - XAMPP
-- Modern Web Browser
+- Modern Browser
 
 ---
 
@@ -288,14 +282,14 @@ C -->|No| F[Show Login Error]
 ### 1️⃣ Clone Repository
 
 ```bash
-git clone https://github.com/your-username/student-MVC.git
+git clone https://github.com/LwinKo-kun/SMS-MVC.git
 ```
 
 ---
 
-### 2️⃣ Move Project to XAMPP
+### 2️⃣ Move Project
 
-Place project inside:
+Place inside:
 
 ```bash
 C:/xampp/htdocs/
@@ -318,7 +312,7 @@ student_management
 Import the SQL file from:
 
 ```bash
-/database/student_management.sql
+/database
 ```
 
 ---
@@ -333,37 +327,34 @@ Start:
 
 ### 6️⃣ Run Project
 
-Open browser:
-
 ```bash
 http://localhost/student-MVC/public/login.html
 ```
 
 ---
 
-# 🧠 System Workflow
+# 🧠 How The System Works
 
-1. User logs in
+1. User logs into the system
 2. Frontend sends Fetch API request
-3. PHP API receives request
-4. Controller processes logic
-5. Model interacts with database
-6. MySQL returns data
-7. JSON response sent back
-8. Frontend updates UI
+3. PHP API processes request
+4. Controller handles business logic
+5. Model interacts with MySQL database
+6. JSON response returns to frontend
+7. UI updates dynamically
 
 ---
 
 # 🔥 Future Improvements
 
 - Replace MD5 with `password_hash()`
-- JWT Authentication
+- Add JWT Authentication
 - React Frontend
 - Dashboard Analytics
-- PDF/Excel Export
-- Search & Filtering
-- Role-Based Access Control
+- Export PDF/Excel Reports
+- Pagination & Filtering
 - Responsive Mobile UI
+- Advanced Role Permissions
 
 ---
 
@@ -376,7 +367,7 @@ This project demonstrates:
 - CRUD Operations
 - Session Authentication
 - Database Relationships
-- Frontend + Backend Integration
+- Frontend & Backend Integration
 - MySQL Query Design
 
 ---
@@ -386,10 +377,12 @@ This project demonstrates:
 ### Lwin Ko Ko Aung
 Computer Science Student
 
-Educational MVC + REST API Project for learning full-stack development.
+Educational project for learning full-stack development with PHP MVC and REST APIs.
 
 ---
 
 # 📜 License
 
 This project is developed for educational purposes only.
+
+Repository: https://github.com/LwinKo-kun/SMS-MVC.git
