@@ -1,19 +1,30 @@
-# React
+# Frontend dependencies
 frontend/node_modules/
-frontend/dist/
+frontend/.pnp/
+frontend/.pnp.js
+
+# Testing and build outputs
+frontend/coverage/
 frontend/build/
-frontend/public/
 
-# PHP
-server/vendor/
+# PHP / Backend backups and logs
+backend/config/*.backup
+*.log
 
-# ENV
-.env 
+# Environment variables / Sensitive data
+.env
+.env.local
+.env.*.local
 
-# Uploads
-server/uploads/
-
-# IDE
+# IDEs and Editors
 .vscode/
 .idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
 
+# Operating System Files
+.DS_Store
+Thumbs.db

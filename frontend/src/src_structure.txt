@@ -1,0 +1,25 @@
+.
+|-- App.css
+|-- App.js
+|-- App.test.js
+|-- Components
+|   |-- AppShell.jsx
+|   |-- PrivateLayout.jsx
+|   |-- Sidebar.jsx
+|   `-- Topbar.jsx
+|-- index.css
+|-- index.js
+|-- logo.svg
+|-- Pages
+|   |-- Attendence.jsx
+|   |-- Courses.jsx
+|   |-- Dashboard.jsx
+|   |-- Login.jsx
+|   |-- Reports.jsx
+|   `-- Students.jsx
+|-- reportWebVitals.js
+|-- setupTests.js
+|-- src_structure.txt
+`-- style.css
+
+3 directories, 20 files

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 
-const API = "http://localhost/student-MVC/backend/api";
+const API = "http://localhost:8000/api";
 
 const isOkMessage = (msg) => /created|started|saved/i.test(msg || "");
 

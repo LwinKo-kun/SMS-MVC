@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import config from '../config';
 
 const Login = ({ onLoginSuccess }) => {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
@@ -9,7 +10,7 @@ const handleSubmit = async (e) => {
   setMessage(''); // Clear message before trying
 
   try {
-    const response = await fetch('http://localhost/student-MVC/backend/api/login.php', {
+    const response = await fetch(`${config.current.apiBaseUrl}/login.php`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json', // REQUIRED for PHP to read the body

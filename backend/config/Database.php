@@ -2,8 +2,8 @@
 class Database {
     private $host = "localhost";
     private $db_name = "student_management";
-    private $username = "root";
-    private $password = "";
+    private $username = "sms_user";
+    private $password = "Sms@Secure123";
     public $conn;
 
     public function connect() {

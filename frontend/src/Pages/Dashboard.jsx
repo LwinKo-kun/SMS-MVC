@@ -12,7 +12,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost/student-MVC/backend/api/get_status.php", {
+    fetch("http://localhost:8000/api/get_status.php", {
       credentials: "include"
     })
       .then((res) => res.json())

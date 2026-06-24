@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 
-const API = "http://localhost/student-MVC/backend/api";
+const API = "http://localhost:8000/api";
 
 const TABS = [
   { id: "overview", label: "Overview" },

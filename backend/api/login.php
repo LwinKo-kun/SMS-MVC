@@ -5,16 +5,10 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 ini_set('html_errors', 0);
 
-// 2. Headers
-header("Access-Control-Allow-Origin: http://localhost:3000");
-header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
+// 2. Headers - Use CORS helper
+require_once __DIR__ . "/../config/cors.php";
+setCorsHeaders();
 header("Content-Type: application/json");
-
-if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-    exit;
-}
 
 session_start();
 
