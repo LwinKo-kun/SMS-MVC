@@ -15,8 +15,8 @@ function setCorsHeaders() {
         'http://127.0.0.1:3000',
         'http://127.0.0.1:3001',
         // Add your local IP address
-        'http://192.168.26.138:3000',
-        'http://192.168.26.138:3001',
+        'http://192.168.26.112:3000',
+        'http://192.168.26.112:3001',
     ];
     
     // Check if origin is in allowed list
