@@ -266,17 +266,21 @@ CREATE TABLE enrollments (
 
 ### Database Configuration (`backend/config/Database.php`)
 
-**For Ubuntu/Linux (default):**
-```php
-private $username = "sms_user";
-private $password = "Sms@Secure123";
+The backend supports environment variables for database credentials:
+- `DB_HOST` (default: `localhost`)
+- `DB_NAME` (default: `student_management`)
+- `DB_USER` (default: `root`)
+- `DB_PASS` (default: empty)
+
+Create a `.env` file in the project root to supply password-based credentials, for example:
+```bash
+DB_HOST=localhost
+DB_NAME=student_management
+DB_USER=sms_user
+DB_PASS=Root@123456!
 ```
 
-**For XAMPP/Windows:**
-```php
-private $username = "root";
-private $password = "";
-```
+If you prefer not to use `.env`, the backend will also read these values from the environment.
 
 ### Frontend API Configuration (`frontend/src/config.js`)
 

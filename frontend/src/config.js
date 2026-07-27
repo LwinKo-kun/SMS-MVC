@@ -7,8 +7,12 @@ const config = {
   },
   
   // Network development environment (for other devices)
-  network: {
-    apiBaseUrl: 'http://192.168.26.138:8000/api'
+  get network() {
+    const protocol = window.location.protocol;
+    const hostname = window.location.hostname;
+    return {
+      apiBaseUrl: `${protocol}//${hostname}:8000/api`
+    };
   },
   
   // XAMPP/Apache environment
@@ -18,21 +22,16 @@ const config = {
   
   // Current environment detection
   get current() {
-    // Check if we're accessing from network (not localhost)
     const hostname = window.location.hostname;
     const port = window.location.port;
-    
-    // If accessing from network (IP address), use network config
-    if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
+
+    if (port === '3000') {
+      if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        return this.development;
+      }
       return this.network;
     }
-    
-    // Use development mode if running on localhost:3000 (React dev server)
-    if (hostname === 'localhost' && port === '3000') {
-      return this.development;
-    }
-    
-    // Otherwise use production (XAMPP/Apache)
+
     return this.production;
   }
 };

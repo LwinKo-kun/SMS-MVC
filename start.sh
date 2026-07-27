@@ -5,14 +5,32 @@ echo "Starting Student Management System"
 echo "========================================="
 echo ""
 
+if [ -f ".env" ]; then
+  set -a
+  source ".env"
+  set +a
+fi
+DB_HOST=${DB_HOST:-localhost}
+DB_NAME=${DB_NAME:-student_management}
+DB_USER=${DB_USER:-root}
+DB_PASS=${DB_PASS:-''}
+
 echo "1. Checking MySQL database..."
-sudo mysql -u root -e "USE student_management; SHOW TABLES;" > /dev/null 2>&1
+if [ -n "$DB_PASS" ]; then
+  mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" -e "USE $DB_NAME; SHOW TABLES;" > /dev/null 2>&1
+else
+  mysql -h "$DB_HOST" -u "$DB_USER" -e "USE $DB_NAME; SHOW TABLES;" > /dev/null 2>&1
+fi
 if [ $? -ne 0 ]; then
     echo "   Database not found. Creating it..."
-    sudo mysql -u root < backend/database/schema.sql
+    if [ -n "$DB_PASS" ]; then
+      mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" < backend/database/schema.sql
+    else
+      mysql -h "$DB_HOST" -u "$DB_USER" < backend/database/schema.sql
+    fi
     echo "   Database created and populated"
 else
-    echo "   Database 'student_management' already exists"
+    echo "   Database '$DB_NAME' already exists"
 fi
 
 echo ""

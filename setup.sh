@@ -59,20 +59,41 @@ if ! sudo systemctl is-active --quiet mariadb && ! sudo systemctl is-active --qu
     fi
 fi
 
-# Create database (using root with no password)
+if [ -f ".env" ]; then
+  set -a
+  source ".env"
+  set +a
+fi
+DB_HOST=${DB_HOST:-localhost}
+DB_NAME=${DB_NAME:-student_management}
+DB_USER=${DB_USER:-root}
+DB_PASS=${DB_PASS:-''}
+
 echo "Creating database..."
-sudo mysql -u root << 'EOF' || echo "Database setup may have failed. Please check MySQL credentials."
-CREATE DATABASE IF NOT EXISTS student_management CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+if [ -n "$DB_PASS" ]; then
+    mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" << 'EOF' || echo "Database setup may have failed. Please check MySQL credentials."
+CREATE DATABASE IF NOT EXISTS $DB_NAME CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 EOF
+else
+    mysql -h "$DB_HOST" -u "$DB_USER" << 'EOF' || echo "Database setup may have failed. Please check MySQL credentials."
+CREATE DATABASE IF NOT EXISTS $DB_NAME CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+EOF
+fi
 
 echo ""
 echo "3. Importing database schema..."
 if [ -f "backend/database/schema.sql" ]; then
-    # Use root with no password
-    sudo mysql -u root student_management < backend/database/schema.sql 2>/dev/null || {
-        echo "Failed to import schema. Trying without sudo..."
-        mysql -u root student_management < backend/database/schema.sql
-    }
+    if [ -n "$DB_PASS" ]; then
+        mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" < backend/database/schema.sql 2>/dev/null || {
+            echo "Failed to import schema. Trying again without redirect..."
+            mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" < backend/database/schema.sql
+        }
+    else
+        mysql -h "$DB_HOST" -u "$DB_USER" "$DB_NAME" < backend/database/schema.sql 2>/dev/null || {
+            echo "Failed to import schema. Trying again without redirect..."
+            mysql -h "$DB_HOST" -u "$DB_USER" "$DB_NAME" < backend/database/schema.sql
+        }
+    fi
     echo "Database schema imported"
 else
     echo "Error: schema.sql not found at backend/database/schema.sql"

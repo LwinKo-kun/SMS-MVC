@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
+import config from '../config';
 
-const API = "http://localhost:8000/api";
+const API = config.current.apiBaseUrl;
 
 const isSuccessMessage = (msg) =>
     /saved|removed|enrolled|registered/i.test(msg || "");

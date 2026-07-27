@@ -1,4 +1,14 @@
 #!/bin/bash
+if [ -f ".env" ]; then
+  set -a
+  source ".env"
+  set +a
+fi
+DB_HOST=${DB_HOST:-localhost}
+DB_NAME=${DB_NAME:-student_management}
+DB_USER=${DB_USER:-root}
+DB_PASS=${DB_PASS:-''}
+
 echo "Starting development servers..."
 echo ""
 echo "1. Starting PHP API server on port 8000..."

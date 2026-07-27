@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
+import config from '../config';
 
-const API = "http://localhost:8000/api";
+const API = config.current.apiBaseUrl;
 
 const TABS = [
   { id: "overview", label: "Overview" },
