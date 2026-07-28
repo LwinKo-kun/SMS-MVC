@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import config from '../config';
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
@@ -12,7 +13,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost/student-MVC/backend/api/get_status.php", {
+    fetch(`${config.current.apiBaseUrl}/get_status.php`, {
       credentials: "include"
     })
       .then((res) => res.json())

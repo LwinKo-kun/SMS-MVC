@@ -14,6 +14,7 @@ import Courses from "./Pages/Courses";
 import Attendance from "./Pages/Attendence";
 import Reports from "./Pages/Reports";
 import PrivateLayout from "./Components/PrivateLayout";
+import config from "./config";
 
 function App() {
 
@@ -27,7 +28,7 @@ function App() {
   useEffect(() => {
 
     fetch(
-      "http://localhost/student-MVC/backend/api/session.php",
+      `${config.current.apiBaseUrl}/session.php`,
       {
         credentials: "include"
       }

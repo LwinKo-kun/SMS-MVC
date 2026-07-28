@@ -1,8 +1,8 @@
 <?php
 
-header("Access-Control-Allow-Origin: http://localhost:3000");
-
-header("Access-Control-Allow-Credentials: true");
+// Include CORS configuration
+require_once __DIR__ . "/../config/cors.php";
+setCorsHeaders();
 
 header("Content-Type: application/json");
 

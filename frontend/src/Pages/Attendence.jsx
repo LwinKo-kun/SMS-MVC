@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
+import config from '../config';
 
-const API = "http://localhost/student-MVC/backend/api";
+const API = config.current.apiBaseUrl;
 
 const STATUSES = [
   { id: "present", label: "Present", emoji: "✓" },

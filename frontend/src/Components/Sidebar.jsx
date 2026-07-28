@@ -15,7 +15,7 @@ const Sidebar = () => {
   const handleLogout = async () => {
     try {
       await fetch(
-        "http://localhost/student-MVC/backend/api/logout.php",
+        `${config.current.apiBaseUrl}/logout.php`,
         { credentials: "include" }
       );
       navigate("/");

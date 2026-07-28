@@ -1,0 +1,13 @@
+#!/bin/bash
+echo "XAMPP Compatibility Setup"
+echo ""
+echo "For XAMPP on Windows:"
+echo "1. Copy the entire project to: C:/xampp/htdocs/SMS-MVC/"
+echo "2. Restore original database config:"
+echo "   cp backend/config/Database.php.backup backend/config/Database.php"
+echo "3. Start XAMPP (Apache + MySQL)"
+echo "4. Import backend/database/schema.sql via phpMyAdmin"
+echo "5. Access: http://localhost/SMS-MVC/frontend/public/index.html"
+echo ""
+echo "To switch back to Linux setup:"
+echo "   ./setup.sh"
